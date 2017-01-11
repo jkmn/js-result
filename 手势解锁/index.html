@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <style type="text/css">
+          * {
+            margin:  0;
+            padding:  0;
+          }
+          #canvas {
+            background-color: #eee;
+          }
+        </style>
+    </head>
+    <body>
+      <canvas id='canvas'></canvas>
+    </body>
+    <script type="text/javascript" src='./index.js'></script>
+    <script type="text/javascript">
+      let nWinW = document.body.getBoundingClientRect().width, nWinH = window.innerHeight;
+      let canvas = document.querySelector('#canvas');
+      canvas.style.height = nWinH + 'px';
+      canvas.style.width = nWinW + 'px';
+      canvas.height = nWinH;
+      canvas.width = nWinW;
+      let passwords = [0, 1, 2];
+      let unlock = new TouchUnLock(canvas, data => {
+        return data.length ==  passwords.length && passwords.every((key, index) => {
+          return data[index] == key;
+        })
+      });
+
+      unlock.draw();
+    </script>
+</html>

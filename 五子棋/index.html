@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <style type="text/css">
+          * {
+            margin: 0;
+            padding: 0;
+          }
+          #wrap {
+            width:  450px;
+            height:  450px;
+            margin: 0 auto;
+            box-sizing: border-box;
+            position: relative;
+            background-color: #fff;
+          }
+          .box {
+            width: 30px;
+            height: 30px;
+            border:  1px solid #ccc;
+            position: absolute;
+            color: orange;
+          }
+          .btn {
+            position: fixed;
+            width: 40px;
+            height:  30px;
+            top:  10px;
+            right: 10px;
+            z-index: 2;
+          }
+
+          .auto {
+            position: fixed;
+            width: 40px;
+            height:  30px;
+            top:  10px;
+            right: 60px;
+            z-index: 2;
+          }
+        </style>
+    </head>
+    <body>
+    <button class='btn'> 下一步 </button>
+     <button class='auto'> 自动 </button>
+      <div id='wrap'></div>
+    </body>
+    <script type="text/javascript" src='index.js'></script>
+    <script type="text/javascript">
+      class BoardView {
+        constructor(x, y) {
+          this._x = x;
+          this._y = y;
+          this._wrap = document.querySelector('#wrap');
+        }
+        clearBoard() {
+          this._vBoard = [];
+          this._wrap.innerHTML = '';
+        }
+        showBoard() {
+          var self = this;
+          this._vBoard = new Array(this._y);
+          let isClick = false;
+          for (var y = 0; y < this._y; y++) {
+            this._vBoard[y] = this._vBoard[y] || new Array(this._x);
+            for(var x = 0; x < this._x; x++) {
+              var div = document.createElement('div');
+              div.className = 'box';
+              div.style.left = x * 30 + 'px';
+              div.style.top = y * 30 + 'px';
+              div.x = x;
+              div.y = y;
+              this._wrap.appendChild(div);
+              this._vBoard[y][x] = div;
+            }
+          }
+        }
+
+        play(board) {
+          let piece = board.lastPiece;
+          if (piece) {
+            let box = this._vBoard[piece.y][piece.x];
+            box.style.backgroundColor = piece._color;
+          }
+        }
+
+        update(x, y, color) {
+          this._vBoard[y][x].style.backgroundColor = color;
+        }
+
+      }
+    </script>
+    <script type="text/javascript">
+
+      var WIDTH = 15, HEIGHT = 15;
+      var jl = [], _t = 20, totalNumber = 20;
+      let boardView = new BoardView(WIDTH, HEIGHT), totalTime = Date.now();
+      function startGame() {
+        boardView.clearBoard();
+        boardView.showBoard();
+        var startTime = Date.now();
+         let board = new Board(WIDTH, HEIGHT);
+         var player1 = new Player(board);
+         player1.setColor(PIECE_COLOR.BLACK);
+         var player2 = new Player(board);
+         player2.setColor(PIECE_COLOR.WHITE);
+
+        var players = [player1, player2], num = 0;
+        var ai = new GoBangAI(board);
+        ai.init();
+        var piece = ai.getPiece();
+        type = player2.play(piece.x, piece.y);
+        ai.parse(player2.color);
+        boardView.update(piece.x, piece.y, player2.color);
+        document.querySelector('#wrap').onclick = function(event) {
+          let box = event.target, x = box.x, y = box.y;
+          let type = player1.play(x, y);
+          if (type == ADD_TYPE.FINISH) {
+            alert('您获胜了');
+          }
+          if (type != ADD_TYPE.FAIL) {
+            boardView.update(x, y, player1.color);
+            ai.parse(player2.color);
+            let piece = ai.getPiece();
+            type = player2.play(piece.x, piece.y);
+            ai.parse(player2.color);
+            if (type != ADD_TYPE.FAIL) {
+               boardView.update(piece.x, piece.y, player2.color);
+            }
+            if (type == ADD_TYPE.FINISH) {
+              alert('机器获胜了!');
+            }
+          }
+        }
+      }
+
+      startGame();
+
+    </script>
+</html>
