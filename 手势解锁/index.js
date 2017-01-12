@@ -2,7 +2,7 @@
 * @Author: cb
 * @Date:   2017-01-11 15:51:46
 * @Last Modified by:   cb
-* @Last Modified time: 2017-01-12 08:34:31
+* @Last Modified time: 2017-01-12 08:39:56
 */
 
 'use strict';
@@ -15,51 +15,6 @@ const UICOLOR = {
   SUCCESS: 'green'
 }
 
-
-class UILine {
-  constructor(startPoint, endPoint) {
-    this._startPoint = startPoint;
-    this._endPoint = endPoint;
-    this._strokeColor = UICOLOR.CHECKED;
-    this._lineWidth = 5;
-  }
-
-  get startPoint() {
-    return this._startPoint;
-  }
-
-  get endPoint() {
-    return this._endPoint;
-  }
-
-  set endPoint(point) {
-    this._endPoint = point;
-  }
-
-  set startPoint(point = null) {
-    this._startPoint = point;
-  }
-
-  draw(ctx, color) {
-    if (!this._startPoint || !this._endPoint) return;
-    ctx.save();
-    ctx.beginPath();
-    ctx.strokeStyle = color || this._strokeColor;
-    ctx.lineWidth = this._lineWidth;
-    ctx.moveTo(this._startPoint.x, this._startPoint.y);
-    ctx.lineTo(this._endPoint.x, this._endPoint.y);
-    ctx.stroke();
-    ctx.closePath();
-    ctx.restore();
-  }
-}
-
-UILine.copy = function(line) {
-  if (! (line instanceof UILine)) {
-    throw '参数必须是 UILine 的对象';
-  }
-  return new UILine(line.startPoint, line.endPoint);
-}
 
 class LineContainer {
   constructor () {
@@ -84,49 +39,13 @@ class LineContainer {
   }
 }
 
-class UICircle {
-  constructor(x, y, radiu, color = UICOLOR.DEFAULT, canDraw = true, isFill = false) {
-    this._point = new Point(x, y);
-    this._radiu = radiu;
-    this._color = color;
-    this._isFill = isFill;
-    this._canDraw = canDraw;
-  }
 
-  set canDraw(val) {
-    this._canDraw = val;
-  }
-
-  get point() {
-    return this._point;
-  }
-
-  draw(ctx, color) {
-   if (!this._canDraw) return;
-   ctx.save();
-   ctx.beginPath();
-   ctx[this._isFill ? 'fillStyle' : 'strokeStyle'] = color || this._color;
-   ctx.arc(this._point.x, this._point.y, this._radiu, 0, 2 * Math.PI);
-   ctx[this._isFill ? 'fill' : 'stroke']();
-   ctx.closePath();
-   ctx.restore();
-  }
-  //是否包含一个点
-  containPoint(point){
-    if(!(point instanceof Point)) {
-      throw('请出入 Point 的对象');
-    }
-    let x = this._point.x, y = this._point.y;
-    return point.x > x - this._radiu && point.x < x + this._radiu && point.y > y - this._radiu && point.y < y + this._radiu;
-  }
-}
 
 class BigCircle {
   constructor(x, y, radiu) {
-    this._x = x;
-    this._y = y;
-    this._bigCircle = new UICircle(x, y, radiu);
-    this._smallCircle = new UICircle(x, y, radiu / 3, UICOLOR.CHECKED, false, true);
+    this._point = new Point(x, y);
+    this._bigCircle = new UICircle(this._point, radiu);
+    this._smallCircle = new UICircle(this._point, radiu / 3, UICOLOR.CHECKED, false, true);
     this._isChecked = false;
   }
 
