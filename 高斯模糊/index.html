@@ -4,27 +4,21 @@
         <meta charset="utf-8">
     </head>
     <body>
+      <img src="./2.jpg" />
     </body>
     <script type="text/javascript" src='./index.js'></script>
     <script type="text/javascript">
-      var dumImage = null;
-
-      for(var i = 1; i <= 10; i++) {
-        !function(i){
-          DumImage.dumpForSrc('./1.jpg', i).then(imageData => {
+        DumImage.dumpForSrc('./2.jpg', 5).then(imageData => {
           let canvas = document.createElement('canvas');
           canvas.width = imageData.width;
           canvas.height = imageData.height;
           canvas.style.height = imageData.height + 'px';
           canvas.style.width = imageData.width + 'px';
-          let t = document.createTextNode(i);
-          document.body.appendChild(t);
+
           document.body.appendChild(canvas);
 
           let ctx = canvas.getContext('2d');
           ctx.putImageData(imageData, 0, 0);
-        })
-        }(i);
-      }
+        });
     </script>
 </html>
