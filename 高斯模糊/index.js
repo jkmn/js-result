@@ -2,7 +2,7 @@
 * @Author: cb
 * @Date:   2017-01-12 15:14:31
 * @Last Modified by:   cb
-* @Last Modified time: 2017-01-12 22:30:13
+* @Last Modified time: 2017-01-12 22:36:22
 */
 
 'use strict';
@@ -61,21 +61,17 @@ class DumImage {
       r: 0,
       g: 0,
       b: 0,
-      a: 0
     }, data = imageData.data;
     let i = 0;
-    let num = 0;
-
     DumImage._eachImageDataRange(imageData, x, y, radiu, (_tmpX, _tmpY, _x, _y) => {
       let index = DumImage._transformPoint(_tmpX, _tmpY, imageData.width);
       target.r += data[index] * blurs[i];
       target.g += data[index + 1] * blurs[i];
       target.b += data[index + 2] * blurs[i];
-      target.a += data[index + 3];
       i++;
     });
 
-    return [target.r , target.g , target.b ];
+    return Object.values(target);
   }
 
   static _eachImageDataRange(imageData,x, y, radiu, cb) {
