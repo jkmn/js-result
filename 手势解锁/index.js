@@ -2,7 +2,7 @@
 * @Author: cb
 * @Date:   2017-01-11 15:51:46
 * @Last Modified by:   cb
-* @Last Modified time: 2017-01-11 23:14:36
+* @Last Modified time: 2017-01-12 08:34:31
 */
 
 'use strict';
@@ -13,22 +13,6 @@ const UICOLOR = {
   CHECKED: 'orange',
   ERROR: 'red',
   SUCCESS: 'green'
-}
-
-
-class Point {
-  constructor(x, y) {
-    this._x = x;
-    this._y = y;
-  }
-
-  get x() {
-    return this._x;
-  }
-
-  get y() {
-    return this._y;
-  }
 }
 
 
