@@ -2,7 +2,7 @@
 * @Author: cb
 * @Date:   2017-01-12 08:29:31
 * @Last Modified by:   cb
-* @Last Modified time: 2017-01-12 10:19:14
+* @Last Modified time: 2017-01-13 15:12:25
 */
 
 'use strict';
@@ -19,6 +19,14 @@ class Point {
 
   get y() {
     return this._y;
+  }
+
+  set x(x) {
+    this._x = x;
+  }
+
+  set y(y) {
+    this._y = y;
   }
 
   updateY(y) {
