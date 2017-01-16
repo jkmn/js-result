@@ -2,24 +2,22 @@
 * @Author: cb
 * @Date:   2017-01-13 11:45:41
 * @Last Modified by:   cb
-* @Last Modified time: 2017-01-15 00:48:25
+* @Last Modified time: 2017-01-16 16:17:45
 */
 
 'use strict';
 
 class Part {
-  constructor(point, size, resource) {
-    this._resource = resource;
-    // this._point = point;
-    // this._size = size;
-    this._rect = new Rect(point, size);
+  constructor(config) {
+    this._config = config;
+    this._resource = config.resource || {}
+    this._rect = new Rect(config.point && config.point.copy() || new Point(0, 0), config.size && config.size.copy() || new Size(0, 0));
     this._uid = ++Part._uid;
-    this._hp = 1; //部件血量 当血量为0时  部件死亡 -1为不可杀死部件
-    this._atk = 0; //攻击力 两个部件碰撞是 血量 = 血量 - 攻击力
-    this._group = null; //部件所属的集团  相同集团之间不能相互攻击 没有集团的部件也可以被攻击
+    this._hp = config.hp || 1; //部件血量 当血量为0时  部件死亡 -1为不可杀死部件
+    this._atk = config.atk || 0; //攻击力 两个部件碰撞是 血量 = 血量 - 攻击力
 
-    this._moveDirection = Direction.U; //运动的方向
-    this._speed = 0;//运动的速度
+    this._moveDirection = config.step && config.step[0] || config.direction || Direction.U; //运动的方向
+    this._speed = config.speed || 0;//运动的速度
   }
 
   //移动到指定的位置
@@ -32,10 +30,7 @@ class Part {
       this._moveDirection = direction;
     }
     direction = this._moveDirection;
-    if (speed) {
-      this._speed = speed;
-    }
-    speed = this._speed;
+    speed = speed || this._speed;
     let point = new Point(0, 0);
     switch(direction) {
       case Direction.L:
@@ -51,9 +46,7 @@ class Part {
         point.y = 1;
       break;
     }
-
     point.take(speed);
-
     this._rect.point.add(point);
   }
 

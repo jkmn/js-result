@@ -2,7 +2,7 @@
 * @Author: cb
 * @Date:   2017-01-13 14:24:17
 * @Last Modified by:   cb
-* @Last Modified time: 2017-01-14 15:39:49
+* @Last Modified time: 2017-01-16 15:52:44
 */
 
 //基地
@@ -10,8 +10,8 @@
 
 class BasePart extends Part {
 
-  constructor(point, size) {
-    super(point, size);
+  constructor(config) {
+    super(config);
   }
 
   _draw(ctx) {

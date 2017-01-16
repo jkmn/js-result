@@ -26,99 +26,137 @@ var mapConfig = {
       map:{
         wall: 'wall.gif',
         walls: 'walls.gif',
-        base: 'star.gif'
+        base: 'star.gif',
+        steels: 'steels.gif'
       }
     }
   },
-  hero: {
-    config: {
-      shotInterval: 500, //射击间隔
-      resurgenceTime: 3, //复活时间
-      invincibleTime: 3, //无敌时间
-      autoShot: false,
-      shotKey: 'a'
-    },
-    tank: {
-      size: {
-        width: 60,
-        height: 60
+  scenes: {
+    hero: {
+      config: {
+        shotInterval: 500, //射击间隔
+        resurgenceTime: 3, //复活时间
+        invincibleTime: 3, //无敌时间
+        autoShot: false,
+        shotKey: 'a',
       },
-      hp: 1,
-      bulletAtk: 1,
-      speed: 30,
-      direction: 'u',
-      //出生地点
-      position: {
-        x: 0,
-        y: 840
-      }
-    }
-  },
-
- enemy: {
-    config: {
-      shotInterval: 500, //射击间隔
-      resurgenceTime: 3, //复活时间
-      invincibleTime: 0, //无敌时间
-      autoShot: true
-    },
-    tank: {
-      size: {
-        width: 60,
-        height: 60
-      },
-      step: ['d', 'l'],
-      hp: 1,
-      bulletAtk: 1,
-      speed: 1,
-      direction: 'd',
-      positions: [
+      scenes: [
         {
-          x:0,
-          y:0
-        },
-        {
-          x: 840,
-          y: 0
+          parts: {
+            tank: {
+              entrys: [
+                {
+                  size: {
+                    width: 60,
+                    height: 60
+                  },
+                  hp: 1,
+                  bulletAtk: 1,
+                  speed: 30,
+                  direction: 'u',
+                  position: {x: 0, y: 840}
+                }
+              ]
+            }
+          }
         }
       ]
-    }
-  },
-
-  map: {
-    base: {
-      size: {
-        width: 40,
-        height: 40
-      },
-      position: {
-        x: 430,
-        y: 860
-      }
     },
-    walls: {
-      size: {
-        width: 60,
-        height: 60
+
+   enemy: {
+      config: {
+        shotInterval: 500, //射击间隔
+        resurgenceTime: 3, //复活时间
+        invincibleTime: 0, //无敌时间
+        autoShot: true
       },
-      positions: [
+      scenes: [
         {
-          x: 360,
-          y: 840
+          parts:{
+            tank: {
+              entrys: [{
+                position: {x: 0, y: 0},
+                step: ['d', 'r', 'd', 'l'],
+                size: {
+                  width: 60,
+                  height: 60
+                },
+                hp: 1,
+                bulletAtk: 1,
+                speed: 2,
+                direction: 'd',
+              }]
+            }
+          }
         },
         {
-          x: 360,
-          y: 780
-        },{
-          x: 420,
-          y: 780
-        },{
-          x: 480,
-          y: 780
-        },
+          parts: {
+            tank: {
+              entrys: [
+              {
+                position: {x: 840, y: 0},
+                step: ['d', 'l', 'd', 'r'],
+                size: {
+                  width: 60,
+                  height: 60
+                },
+                hp: 1,
+                bulletAtk: 1,
+                speed: 2,
+                direction: 'd',
+              }]
+            }
+          }
+        }
+      ]
+    },
+
+    map: {
+      scenes: [
         {
-          x: 480,
-          y: 840
+          parts:{
+            base: {
+              entrys: [
+                {
+                  size: {
+                    width: 40,
+                    height: 40
+                  },
+                  position: {
+                    x: 430,
+                    y: 860
+                  }
+                }
+              ]
+            },
+            steels: {
+              common: {
+                size: {
+                  width: 60,
+                  height: 60
+                },
+                hp: -1,
+              },
+              entrys: [
+                {position: {x: 360, y: 840}},
+                {position: {x: 360, y: 780}},
+                {position: {x: 420, y: 780}},
+                {position: {x: 480, y: 780}},
+                {position: {x: 480, y: 840}},
+              ]
+            },
+            walls: {
+              common:{
+                size: {
+                  width: 60,
+                  height: 60
+                },
+              },
+              entrys: [
+                {position: {x: 0, y: 100}}
+              ]
+            },
+          }
         }
       ]
     }

@@ -2,7 +2,7 @@
 * @Author: cb
 * @Date:   2017-01-14 11:31:05
 * @Last Modified by:   cb
-* @Last Modified time: 2017-01-16 14:25:05
+* @Last Modified time: 2017-01-16 16:53:08
 */
 /**
  * 敌方坦克图层
@@ -29,10 +29,16 @@ class EnemyTankScene extends TankScene {
     }
   }
 
+_limitTankMoveCollisionPart(part) {
+  super._limitTankMoveCollisionPart(part);
+  this._changeDirection();
+}
+
   _changeDirection() {
     this._currentStep++;
-    if (this._currentStep > this._config.tank.step.length - 1 ) this._currentStep = 0;
-    this._tank.direction = this._config.tank.step[this._currentStep];
+    let step =  this._tank.step
+    if (this._currentStep > step.length - 1 ) this._currentStep = 0;
+    this._tank.direction = step[this._currentStep];
   }
 
 

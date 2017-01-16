@@ -2,7 +2,7 @@
 * @Author: cb
 * @Date:   2017-01-14 12:00:34
 * @Last Modified by:   cb
-* @Last Modified time: 2017-01-16 14:22:31
+* @Last Modified time: 2017-01-16 16:57:12
 */
 
 'use strict';
@@ -11,34 +11,24 @@ class TankScene extends GameScene {
     super(...args);
     this._openDetectedCollision = true;
     this._timer = null;
-    this._initParts();
-  }
-  _initParts() {
-    Object.keys(this._config).forEach(key => {
-      switch(key) {
-        case 'tank':
-          this._initTank();
-        break;
-      }
-    })
+    this._prevTank = null;
   }
 
-  _initTank() {
-    let config = this._config.tank;
-    let size = new Size(config.size.width, config.size.height);
-    let point = new Point(config.position.x, config.position.y);
-    let tank = this._tank = new TankPart(point, size, this._getDirection());
-    tank.resource = config.resource;
-    tank.speed = config.speed;
-    tank.hp = config.hp;
-    this._tank.openInvincible(this._config.config.invincibleTime || 0);
-    this._partContainer.add(tank);
+  _createPart(key, val) {
+    switch(key) {
+      case 'tank':
+        return this._initTank(val);
+    }
+  }
+
+
+  _initTank(config) {
+    let tank = this._tank = new TankPart(config);
+    if (this._config.config.invincibleTime) {
+      tank.openInvincible(this._config.config.invincibleTime);
+    }
     this._autoShot();
-  }
-
-  _getDirection() {
-    let config = this._config.tank;
-    return config && config.step && config.step[this._currentStep] || config.direction
+    return tank;
   }
 
   /**
@@ -48,12 +38,13 @@ class TankScene extends GameScene {
   _autoShot() {
     if (!this._config.config.autoShot || !this._tank) return;
     this._tankShot();
-    setTimeout(this._autoShot.bind(this), this._config.config.shotInterval);
+    setTimeout(() => {
+      this._autoShot();
+    }, this._config.config.shotInterval);
   }
 
   //子弹射击
   _tankShot() {
-    if (!this._tank) return;
     this._partContainer.add(this._tank.shot());
   }
 
@@ -88,12 +79,13 @@ class TankScene extends GameScene {
   _resurgence() {
     let time = this._config.config.resurgenceTime;
     setTimeout(() => {
-      this._initTank();
+      this._initPart('tank', this._prevTank._config);
+      this._prevTank = null;
     }, time * 1000);
   }
 
   _tankMove(direction) {
-    this._tank.move(direction, this._config.tank.speed);
+    this._tank.move(direction);
   }
 
   _checkParts() {
@@ -145,9 +137,11 @@ class TankScene extends GameScene {
           let _part = scene.partContainer[_uid];
           if(part && !part.isDie() && _part && !_part.isDie() && part.rect.intersect(_part.rect)) {
             if (_part instanceof BulletPart) {
+              if (scene._group && scene._group == this._group) return; //同类之间不相互攻击
               _part.toDie();
               part.beAttacked(_part.atk);
             } else if(part instanceof BulletPart) {
+              if (scene._group && scene._group == this._group) return;  //同类之间不相互攻击
               part.toDie();
               _part.beAttacked(part.atk);
             } else {
@@ -162,6 +156,7 @@ class TankScene extends GameScene {
   draw(ctx) {
     this._checkParts();
     if (this._tank && this._tank.isDie()) {
+       this._prevTank = this._tank;
        this._tank = null;
        this._resurgence();
     }

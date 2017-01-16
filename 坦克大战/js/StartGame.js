@@ -2,16 +2,22 @@
 * @Author: cb
 * @Date:   2017-01-13 11:45:05
 * @Last Modified by:   cb
-* @Last Modified time: 2017-01-14 23:50:03
+* @Last Modified time: 2017-01-16 15:51:37
 */
 
 'use strict';
 
 //开始场景
-class StartGameScene extends GameScene {
-  constructor(rect) {
-    super(rect);
-    this._startBtn = new BtnPart('开始游戏',new Point(10, 10), new Size(100, 40), 'blue', '#fff');
+class StartGame extends GameScene{
+  constructor() {
+    super();
+    this._startBtn = new BtnPart({
+      text: '开始游戏',
+      point: new Point(10, 10),
+      size: new Size(100, 40),
+      color: 'blue',
+      textColor: '#fff'
+    });
     this._partContainer.add(this._startBtn);
     document.body.addEventListener('click', this, false);
   }

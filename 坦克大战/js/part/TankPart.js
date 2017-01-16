@@ -2,19 +2,26 @@
 * @Author: cb
 * @Date:   2017-01-13 08:29:12
 * @Last Modified by:   cb
-* @Last Modified time: 2017-01-14 15:51:01
+* @Last Modified time: 2017-01-16 16:42:45
 */
 
 'use strict';
 
 class TankPart extends Part {
 
-  constructor(point, size, direction = Direction.U) {
-    super(point, size);
-    this._resource = {};
-    this._moveDirection = direction;
-    this._bulletAtk = 1;
+  constructor(config) {
+    super(config);
+    this._step = config.step || [];
+    this._bulletAtk = config.bulletAtk || 1;
   }
+  get step() {
+    return this._step;
+  }
+
+  copy() {
+    return new TankPart(this._config);
+  }
+
   set bulletAtk(val) {
     this._bulletAtk = val;
   }
@@ -35,7 +42,6 @@ class TankPart extends Part {
     }
   }
   move(direction, speed) {
-    this._speed = speed;
     if (this._moveDirection != direction) {
       this._moveDirection = direction;
       return;
@@ -63,7 +69,13 @@ class TankPart extends Part {
         y = this._rect.y + this._rect.height + size.height / 2;
       break;
     }
-    let bullet = new BulletPart(new Point(x, y), size, this._moveDirection);
+    let bullet = new BulletPart({
+      point: new Point(x, y),
+      size: size,
+      direction: this._moveDirection,
+      speed: 5,
+      atk: this._bulletAtk
+    });
     bullet.atk = this._bulletAtk;
     return bullet;
   }

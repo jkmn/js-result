@@ -2,13 +2,13 @@
 * @Author: cb
 * @Date:   2017-01-13 08:32:32
 * @Last Modified by:   cb
-* @Last Modified time: 2017-01-14 15:04:25
+* @Last Modified time: 2017-01-16 15:52:53
 */
 
 'use strict';
 class WallPart extends Part {
-  constructor(point, size) {
-    super(point, size);
+  constructor(config) {
+    super(config);
   }
 
   _draw(ctx) {
