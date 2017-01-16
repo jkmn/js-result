@@ -2,7 +2,7 @@
 * @Author: cb
 * @Date:   2017-01-13 11:06:49
 * @Last Modified by:   cb
-* @Last Modified time: 2017-01-13 11:25:07
+* @Last Modified time: 2017-01-14 16:45:27
 */
 
 'use strict';
@@ -12,6 +12,19 @@ class Rect {
     this._point = point;
     this._size = size;
     this._center = new Point(point.x + size.width / 2, point.y + size.height / 2); //中心点
+  }
+
+  copy() {
+    return new Rect(this._point.copy(), this._size.copy());
+  }
+
+  /**
+   * 是否和别的矩形相交
+   * @param  {[type]} rect [description]
+   * @return {[type]}      [description]
+   */
+  intersect(rect) {
+    return !(this.x + this.width <= rect.x || this.x >= rect.x + rect.width || this.y + this.height <= rect.y || this.y >= rect.y + rect.height);
   }
 
   /**
@@ -27,6 +40,21 @@ class Rect {
   static init(x, y, width, height) {
     return new Rect(new Point(x, y), new Size(width, height));
   }
+  set x(x) {
+    this._point.x = x;
+  }
+
+  set y(y) {
+    this._point.y = y;
+  }
+
+  set width(w) {
+    this._size.width = w;
+  }
+
+  set height(h) {
+    this._size.height = h;
+  }
 
   get centerPoint() {
     return this._center;
@@ -34,6 +62,10 @@ class Rect {
 
   get point() {
     return this._point;
+  }
+
+  set point(point) {
+    this._point = point;
   }
 
   get size() {

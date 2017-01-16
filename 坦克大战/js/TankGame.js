@@ -1,78 +1,65 @@
 /*
 * @Author: cb
-* @Date:   2017-01-13 09:13:04
+* @Date:   2017-01-13 11:52:30
 * @Last Modified by:   cb
-* @Last Modified time: 2017-01-13 14:35:45
+* @Last Modified time: 2017-01-16 11:40:51
 */
 
 'use strict';
 
+const Rule = {
+  hero: 'hero',
+  enemy: 'enemy'
+}
 
-
-let TankGame = (
-  () => {
-    let _defaultConfig = {
-      resource: {
-        tank: {
-          hero: {
-            l: `./img/p1tankL.gif`,
-            r: `./img/p1tankR.gif`,
-            u: `./img/p1tankU.gif`,
-            d: `./img/p1tankD.gif`
-          },
-          enemy: {
-            l: `./img/p2tankL.gif`,
-            r: `./img/p2tankR.gif`,
-            u: `./img/p2tankU.gif`,
-            d: `./img/p2tankD.gif`
-          }
-        },
-        wall: './img/wall.gif',
-        walls: './img/walls.gif',
-        base: './img/star.gif'
-      }
-    }
-
-    //坦克游戏
-    class TankGame {
-      constructor(config) {
-        this._config = Object.assign({}, _defaultConfig, config);
-        new Resource(this._config.resource || {}).finish((resources) => {
-          this._cacheResources = resources;
-          this._currentScene = null;
-          this._init();
-        });
-      }
-
-      _init() {
-        this._gameType = GameType.INIT;
-        this._initRender();
-        let startGameScene = new StartGameScene(this._renderer.size);
-        startGameScene.event.on('start', this.startGame.bind(this));
-        this._currentScene = startGameScene;
-        this._start();
-      }
-
-      _initRender() {
-        let renderer = this._renderer = new Renderer();
-        renderer.setColor('#ccc');
-        renderer.setSize(this._config.width, this._config.height);
-        this._config.parent.appendChild(renderer.domElement);
-      }
-
-      startGame() {
-        this._gameType = GameType.RUNING;
-        let tankGameScene =  new TankGameScene(this._renderer.size, this._cacheResources);
-        this._currentScene =tankGameScene;
-      }
-
-      _start() {
-        this._renderer.renderer(this._currentScene);
-        requestAnimationFrame(() => {this._start()})
-      }
-
-    }
-
-  return TankGame;
+class TankGame {
+  constructor(rect, config) {
+    this._config = config;
+    this._rect = rect;
+    this._scenes = [];
+    this._initMap();
+    this._initHeroTank();
+    this._initEnemyTanks();
   }
-)();
+
+  get scenes() {
+    return this._scenes;
+  }
+
+  /**
+   * 初始化地图
+   * @return {[type]} [description]
+   */
+  _initMap() {
+    let mapScene = this._mapScene = new BaseMapScene(this._rect,this._config.map, this)
+    this._scenes.push(mapScene);
+  }
+
+  /**
+   * 初始化英雄坦克
+   * @param  {[type]} ctx [description]
+   * @return {[type]}     [description]
+   */
+  _initHeroTank() {
+    let tankSize = new Size(60, 60);
+    let heroScene = this._heroTankScene = new HeroTankScene(this._rect,this._config.hero, this)
+    this._scenes.push(heroScene);
+  }
+
+  _initEnemyTanks() {
+      let config = this._config.enemy;
+      config.tank.positions.forEach(position => {
+        let tank = Object.assign({}, config.tank, {position});
+        delete tank.positions;
+        let _config = Object.assign({}, config, {tank});
+        let tankScene = new EnemyTankScene(this._rect, _config, this);
+        this._scenes.push(tankScene);
+      })
+  }
+
+
+  draw(ctx) {
+    this._scenes.forEach(scene => scene.draw(ctx));
+  }
+
+}

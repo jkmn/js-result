@@ -2,7 +2,7 @@
 * @Author: cb
 * @Date:   2017-01-13 11:48:55
 * @Last Modified by:   cb
-* @Last Modified time: 2017-01-13 13:51:38
+* @Last Modified time: 2017-01-14 17:23:04
 */
 
 'use strict';
@@ -11,7 +11,8 @@ class Resource {
   constructor(resource) {
     this._cache = {};
     this._finishCn = [];
-    this._loadResource(resource);
+    this._path = resource.path;
+    this._loadResource(resource.images);
   }
 
   finish(cb) {
@@ -61,7 +62,7 @@ class Resource {
       })
     } else {
       this._promises.push(
-        this._loadImage(resource, names)
+        this._loadImage(this._path + resource, names)
       )
     }
   }

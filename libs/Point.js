@@ -2,7 +2,7 @@
 * @Author: cb
 * @Date:   2017-01-12 08:29:31
 * @Last Modified by:   cb
-* @Last Modified time: 2017-01-13 15:12:25
+* @Last Modified time: 2017-01-14 16:44:26
 */
 
 'use strict';
@@ -11,6 +11,19 @@ class Point {
   constructor(x, y) {
     this._x = x;
     this._y = y;
+  }
+  add(point) {
+    this._x += point.x;
+    this._y += point.y;
+  }
+
+  take(num) {
+    this._x *= num;
+    this._y *= num;
+  }
+
+  copy() {
+    return new Point(this._x, this._y);
   }
 
   get x() {
