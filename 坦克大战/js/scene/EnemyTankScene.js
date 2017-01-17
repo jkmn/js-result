@@ -2,7 +2,7 @@
 * @Author: cb
 * @Date:   2017-01-14 11:31:05
 * @Last Modified by:   cb
-* @Last Modified time: 2017-01-16 16:53:08
+* @Last Modified time: 2017-01-17 17:19:01
 */
 /**
  * 敌方坦克图层
@@ -23,6 +23,7 @@ class EnemyTankScene extends TankScene {
    * @return {[type]} [description]
    */
   _autoMove() {
+    if (!this._tank) return;
     this._tankMove(this._tank.direction);
     if (this._isOutRange(this._tank)) {
       this._changeDirection();

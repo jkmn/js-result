@@ -2,7 +2,7 @@
 * @Author: cb
 * @Date:   2017-01-12 08:29:31
 * @Last Modified by:   cb
-* @Last Modified time: 2017-01-14 16:44:26
+* @Last Modified time: 2017-01-17 16:27:50
 */
 
 'use strict';
@@ -15,6 +15,11 @@ class Point {
   add(point) {
     this._x += point.x;
     this._y += point.y;
+  }
+
+  minus(point) {
+    this._x -= point.x;
+    this._y -= point.y;
   }
 
   take(num) {
