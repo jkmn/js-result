@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        ul, li {
+            list-style: none
+        }
+
+        .banner {
+            width:  1000px;
+            margin:  0 auto;
+            position: relative;
+            height:  350px;
+        }
+
+        .banner-item {
+            position: absolute;
+            top: 0px;
+            height:  350px;
+            width:  1000px;
+        }
+
+        .banner-item img {
+            width:  100%;
+            height:  100%;
+        }
+        .current {
+            z-index: 2;
+        }
+
+      /*   .split-box {
+            position: absolute;
+            top:  0px;
+            left:  0px;
+            right:  0px;
+            bottom: 0px
+        } */
+
+    /*     .split-item {
+            
+        } */
+
+    </style>
+</head>
+<body>
+    <ul class="banner">
+        <li class="banner-item current" data-src="http://www.zjhpyy.com/img/advert/201710/cd5dcd86-9233-4e0e-9cef-4f7cfef8bb9e.jpg">
+           
+        </li>
+        <li class="banner-item" data-src="http://www.zjhpyy.com/img/advert/201710/0b8f5cc6-36d3-4b8b-9db0-4395aefb29b4.jpg">
+        </li>
+
+        <li class="banner-item" data-src="http://www.zjhpyy.com/img/advert/201710/78a8a985-0ac9-4b87-bf43-261a9bf54bc9.jpg"></li>
+    </ul>
+    <script type="text/javascript">
+
+
+        class BannerItem {
+            constructor(node, num) {
+                this._node = node
+                this._num = num
+                this._items = this._createSpliteNode(node)
+            }
+
+            get node () {
+                return this._node
+            }
+
+            _createSpliteNode(node) {
+                let bounding = node.getBoundingClientRect()
+                let src = node.getAttribute('data-src')
+                let nW = bounding.width
+                let nH = bounding.height
+                let arr = []
+                let eFragments = document.createDocumentFragment()
+                for (let i = 0; i < this._num; i++) {
+                    var oSplit = new SplitItem(src, i, nW / this._num, nH)
+                    arr.push(oSplit)
+                    eFragments.appendChild(oSplit.node)
+                }
+
+                node.appendChild(eFragments)
+
+                return arr
+            }
+
+            hide () {
+                this._node.style.display = 'none'
+            }
+
+            show () {
+                this._node.style.display = 'block'
+            }
+
+            resert(num = 0) {
+                this._items.forEach(item => item.resert(num))
+            }
+
+            reverse(num) {
+                this._deg = num
+                this.resert(num)
+            }
+            animate(deg) {
+                var d = .6
+                this._deg = deg
+                this._items.forEach((item, index) => {
+                    item.setDuration('.3s')
+                    item.setDelay(`${index * .3 * .6}s`)
+                    item.setRotateY(deg)
+                })
+                return this
+
+            }
+
+            stop() {
+                this.reverse(this._deg)
+            }
+        }
+
+
+        class SplitItem {
+            constructor(src, index, width, height) {
+                this._src = src
+                this._index = index
+                this._width = width
+                this._height = height
+                this._prevsMap = ['webkit', 'moz', 'ms', 'o']
+
+                this._node = this._createNode()
+            }
+
+            get node() {
+                return this._node
+            }
+
+
+            _createNode() {
+                let eSplit = document.createElement('div')
+                eSplit.style.width = `${this._width}px`
+                eSplit.style.height = `${this._height}px`
+                eSplit.style.float = 'left'
+                eSplit.style.backgroundImage = `url(${this._src})`
+                eSplit.style.backgroundRepeat = 'no-repeat'
+                eSplit.style.backgroundPosition = `-${this._index * this._width}px center`
+                this._prevsMap.forEach((prev) => {
+                    eSplit.style[`${prev}TransitionProperty`] = 'transform'
+                    eSplit.style[`${prev}TransitionDuration`] = '0s'
+                    eSplit.style[`${prev}TransitionTimingFunction`] = 'linear'
+                    eSplit.style[`${prev}TransitionDelay`] = '0s'
+                    eSplit.style[`${prev}Transform`] = 'rotateY(0deg)'
+                })
+                return eSplit
+            }
+
+            resert(deg = 0) {
+                this._prevsMap.forEach((prev) => {
+                    this._node.style[`${prev}TransitionDuration`] = '0s'
+                    this._node.style[`${prev}TransitionDelay`] = '0s'
+                    this._node.style[`${prev}Transform`] = `rotateY(${deg}deg)`
+                })
+            }
+
+            setDuration(time) {
+                this._prevsMap.forEach((prev) => {
+                    this._node.style[`${prev}TransitionDuration`] = time
+                })
+            }
+
+            setDelay(time) {
+                this._prevsMap.forEach((prev) => {
+                    this._node.style[`${prev}TransitionDelay`] = time
+                })
+            }
+
+            setRotateY(deg) {
+                this._prevsMap.forEach((prev) => {
+                    this._node.style[`${prev}Transform`] = `rotateY(${deg}deg)`
+                })
+            }
+
+        }
+
+        class Transform2D {
+            constructor(options = {}) {
+                this.options = Object.assign( {
+                    num: 10
+                }, options)
+                this._boxs = {}
+                this._currentIndex = 0
+                this._prevIndex = 0
+                this._stop = false
+                this._eBannerItems = this.options.bannerItems.map(node => new BannerItem(node, this.options.num))
+                this._eBannerItems.map(item => {
+                    item.reverse(90)
+                })
+                this._stop = false
+                this._timer = null
+                let prevB = this._eBannerItems[this._prevIndex]
+                prevB.reverse(0)
+            }
+
+            _animation() {
+                let currentB = this._eBannerItems[this._currentIndex]
+                let prevB = this._eBannerItems[this._prevIndex]
+                prevB.animate(90)
+                currentB.animate(0)
+                this._prevIndex = this._currentIndex
+            }
+
+            run() {
+                this._timer = setTimeout(() => {
+                    this._currentIndex += 1
+                    if (this._currentIndex > this._eBannerItems.length - 1) {
+                        this._currentIndex = 0
+                    }
+                    this._animation()
+                    this.run()
+                }, 3500)
+            }
+
+            stop () {
+                clearTimeout(this._timer)
+                this._eBannerItems.forEach(item => item.stop())
+            }
+        }
+
+        var eBannerItems = document.querySelectorAll('.banner-item')
+
+        window.addEventListener('load', function() {
+
+            var l = new Transform2D({
+                bannerItems: [...eBannerItems]
+            })
+
+            l.run()
+
+            document.querySelector('.banner').addEventListener('mouseover', () => {
+                l.stop()
+            }, false)
+             document.querySelector('.banner').addEventListener('mouseout', () => {
+                l.run()
+             }, false)
+
+
+        }, false)
+    </script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <style>
+          * {
+            margin:  0;
+            padding:  0;
+          }
+          .box {
+            border:  1px solid #ccc;
+            width:  200px;
+            height:  500px;
+            margin:  10px auto;
+          }
+          .box1 {
+            border:  5px solid #ccc;
+            border-bottom:  20px solid green;
+            width:  100px;
+            height:  100px;
+            margin:  10px auto;
+            background-color:  red;
+            /* border-radius: 50px; */
+            padding:  20px;
+          }
+          canvas {
+            margin-top:  20px;
+          }
+        </style>
+    </head>
+    <body>
+    <div class="main">
+      <div class='box'>
+        <div class='box1'></div>
+      </div>
+    </div>
+    </body>
+    <script type="text/javascript">
+
+    function htmlToImg(elem) {
+      elem = elem || document.body || document.documentElement;
+      var node = Node.transformElem(elem);
+      let canvas = new Canvas(node);
+    }
+
+    class Canvas {
+      constructor(node) {
+        this._node = node;
+        this._initCanvas();
+        this._draw();
+        document.body.appendChild(this._canvas);
+      }
+
+
+      _initCanvas() {
+        let canvas = this._canvas = document.createElement('canvas');
+        canvas.height = this._node.bounds.height;
+        canvas.width = this._node.bounds.width;
+        canvas.style.height = canvas.height + 'px';
+        canvas.style.width = canvas.width + 'px';
+        let ctx = this._ctx = canvas.getContext('2d');
+
+      }
+
+      _draw() {
+        this._node.draw(this._ctx);
+      }
+    }
+
+    class Node {
+      constructor(elem) {
+        this._elem = elem;
+        this._children = [];
+        this._style = getStyle(elem);
+      }
+
+      get elem() {
+        return this._elem;
+      }
+      get bounds() {
+        return this._elem.getBoundingClientRect();
+      }
+
+      addChild(child) {
+        this._children.push(child);
+      }
+
+      getStyle(name) {
+        return this._style(name);
+      }
+      draw(ctx) {
+        ctx.save();
+        ctx.beginPath();
+        this._draw(ctx);
+        ctx.closePath();
+        ctx.restore();
+      }
+      _draw(ctx) {
+        ctx.lineWidth=10;
+        ctx.lineJoin = 'miter';
+        ctx.miterLimit = 20;
+        ctx.moveTo(10, 10)
+        // ctx.lineTo(50, 10);
+        ctx.lineTo(50, 60);
+        ctx.lineTo(10, 60);
+        // ctx.lineTo(10, 10);
+
+        ctx.stroke();
+        this._children.forEach((child) => {
+          child.draw(ctx);
+        })
+
+      }
+
+      get point() {
+        return {
+          x:  this.bounds.left,
+          y: this.bounds.top
+        }
+      }
+
+      get size() {
+        return {
+          width: this.bounds.width,
+          height: this.bounds.height
+        }
+      }
+
+
+      get isShow () {
+        return this._style('opacity') != 0 && this._style('display') != 'none';
+      }
+
+      static transformElem(elem) {
+        let nodeName = elem.nodeName.toLowerCase();
+        let node = new Node(elem);
+        if (!node.isShow) return;
+        if (elem.hasChildNodes()) {
+          let childrens = [...elem.childNodes];
+          for(let child of childrens) {
+            if (!isIgnoreTag(child.nodeName)) {
+              switch(child.nodeType){
+                case 3:
+                  node.addChild(new TextNode(child));
+                break;
+                case 1:
+                  let cnode = Node.transformElem(child);
+                  cnode && node.addChild(cnode);
+              }
+
+            }
+          }
+        }
+        return node;
+      }
+    }
+
+    class TextNode extends Node {
+      constructor(elem) {
+        super();
+        this._style = getStyle(elem.parentNode);
+        this._text = elem.textContent;
+      }
+
+      _draw(ctx) {
+
+      }
+    }
+
+    function isIgnoreTag(tagName) {
+      let map = ['script', 'style'];
+      return !!~map.indexOf(tagName.toLowerCase());
+    }
+
+
+    function getStyle(elem) {
+      return function (name) {
+        let val = elem.style[elem];
+        if (!val) {
+          if (document.defaultView) {
+            let prop = document.defaultView.getComputedStyle(elem, '');
+            return prop[name];
+          }
+        }
+        return val;
+      }
+    }
+
+    htmlToImg(document.querySelector('.main'));
+
+    </script>
+</html>

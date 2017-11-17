@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>粒子</title>
+    <style type="text/css">
+        #canvas {
+            background: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <canvas id='canvas'> </canvas>
+    <script type="text/javascript">
+        var canvas = document.getElementById('canvas'),
+            ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth
+        canvas.height = window.innerHeight
+        var moveX, moveY,
+            mouseRadius = 50
+
+
+        var pointers = [];
+
+        var RAF = (function() {
+            return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.oRequestAnimationFrame || window.mozRequestAnimationFrame || function(fn) {
+                setTimeout(fn, 1000 / 60)
+            }
+        })();
+
+        function animation(fn) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            fn()
+            RAF(function() {
+                animation(fn)
+            })
+        }
+
+        class Pointer {
+
+            constructor(ex, ey) {
+                this.x = ex;
+                this.y = ey;
+                this.ex = ex;
+                this.ey = ey;
+                this.vx = 0;
+                this.vy = 0;
+                this.stop = true;
+
+                this.maxCheckTimes = 10;
+                this.checkTimes = 0;
+                this.checkLenght = 5;
+            }
+
+            update() {
+                if (this.stop) {
+                    this.x = this.ex;
+                    this.y = this.ey;
+                } else {
+
+                    var cx = this.ex - this.x,
+                        cy = this.ey - this.y,
+                        range = Math.atan(cy / cx),
+                        ax = Math.abs(this.a * Math.cos(range)),
+                        ay = Math.abs(this.a * Math.sin(range)),
+                        tickTime = 16 / 1000;
+                    ax = cx > 0 ? ax : -ax;
+                    ay = cy > 0 ? ay : -ay;
+                    this.vx += ax * tickTime
+                    this.vy += ax * tickTime
+                    this.vx *= 0.95
+                    this.vy *= 0.95
+
+                    this.x += this.vx * tickTime;
+                    this.y += this.vy * tickTime
+
+                    if (Math.abs(this.x - this.ex) <= this.checkLenght && Math.abs(this.y - this.ey) <= this.checkLenght) {
+                        this.checkTimes++;
+                        if (this.checkTimes >= this.maxCheckTimes) {
+                            this.stop = true
+                        }
+                    } else {
+                        this.checkTimes = 0;
+                    }
+
+                }
+                this.draw()
+                this._checkMove();
+            }
+
+            _checkMove() {
+                if(!moveX) {
+                    this.back()
+                } else {
+                    //鼠标位置和自己的距离
+                    var distance = Math.sqrt(Math.pow(this.x - moveX, 2) + Math.pow(this.y - moveY, 2))
+                    if (distance < mouseRadius) {
+                        this.checkTimes = 0;
+                        this.stop =false;
+                        if (!this.backX) {
+                            this.backX = this.ex;
+                            this.backY = this.ey;
+                        }
+                        var d = mouseRadius - distance;
+                        var range = Math.asin((this.y - moveY) / distance),
+                            ax = Math.abs(Math.cos(range) * d),
+                            ay = Math.abs(Math.sin(range) * d);
+                        ax = this.x > moveX ? ax : -ax;
+                        ay = this.y > moveY ? ay : -ay;
+                        this.a = 2000 + 1000 * (1 - distance / mouseRadius)
+                        this.ex = this.x + ax;
+                        this.ey = this.y + ay
+                    } else {
+                        this.back()
+                    }
+                }
+
+            }
+
+            back() {
+                if (this.backX) {
+                    this.checkTimes = 0;
+                    this.stop = false;
+                    this.a = 1500
+                    this.ex = this.backX
+                    this.ey = this.backY
+                    this.backX = null
+                    this.backY = null
+                }
+            }
+
+            draw() {
+                ctx.beginPath()
+                var bg = ctx.createRadialGradient(this.x, this.y, 2, this.x, this.y, 5)
+                bg.addColorStop(0, '#e3e3e3')
+                bg.addColorStop(1, '#fff')
+                ctx.fillStyle = bg
+                ctx.arc(this.x, this.y, 5, 0, Math.PI * 2, true)
+                ctx.closePath()
+                ctx.fill()
+            }
+        }
+
+        for (var row = 1; row <= 198; row+= 12) {
+            for (var col = 1; col <= 198; col+= 12) {
+                pointers.push(new Pointer(row + 100, col + 100))
+            }
+        }
+
+        animation(function() {
+            pointers.map((item) => item.update())
+        })
+
+        canvas.addEventListener('mousemove', function(e) {
+            e = e || window.event
+            moveX = e.clientX - 8
+            moveY = e.clientY - 8
+        }, false)
+
+        canvas.addEventListener('mouseout', function(e) {
+            moveX = null
+            moveY = null
+        })
+    </script>
+</body>
+</html>
