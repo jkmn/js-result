@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        #canvas {
+            border: 1px solid #ddd;
+            background: yellow
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="500" height="500"></canvas>
+</body>
+<script>
+
+    let canvas = document.getElementById('canvas')
+    let ctx = canvas.getContext('2d')
+
+
+    let c1 = document.createElement('canvas')
+    c1.width = 100
+    c1.height = 100
+    let ct1 = c1.getContext('2d')
+    ct1.fillStyle = "red"
+
+    ct1.fillRect(0, 0, 100, 100)
+
+
+
+    let c2 = document.createElement('canvas')
+    c2.width = 50
+    c2.height = 50
+    let ct2 = c2.getContext('2d')
+    ct2.fillStyle = 'blue'
+
+    ct2.fillRect(0, 0, 50, 50)
+
+    let d2 = ct2.getImageData(0, 0, 50, 50)
+
+    ct1.putImageData(d2, 0, 0)
+
+
+
+    let data = ct1.getImageData(0, 0, 100, 100)
+
+    let src =  c1.toDataURL('image/png')
+
+    let img = new Image
+    img.src = src
+    img.onload = () => {
+        ctx.save()
+        ctx.translate(50, 50)
+        // ctx.setTransform(1,1,0,1,0,0)
+        ctx.rotate(Math.asin(Math.sin(100 * Math.PI / 180)))
+        ctx.drawImage(img, -50, -50)
+        ctx.restore()
+        ctx.putImageData(data, 50, 50)
+    }
+
+    
+
+  
+
+
+
+
+
+
+</script>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>物联网</title>
+    <style>
+        * {
+            margin: 0;
+            padding:0
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="1920" height="1079"></canvas>
+</body>
+<script src="util.js"></script>
+<script src="components.js"></script>
+<script>
+    let canvas = document.getElementById('canvas')
+    let ctx = canvas.getContext('2d')
+    let histogram =  new window.components.HistogramChart({
+        xArray: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        yArray: [0, 50, 100, 150, 200, 250, 300, 350],
+        rect: new Rect(50, 100, 200, 100),
+        color: ['#3398DB', 'rgba(0, 0, 0, .5)'],
+        axisColor: '#fff',
+        axisBdColor: '#fff',
+        useGuide: true
+    })
+    
+
+    let lineChart =  new window.components.LineChart({
+        xArray: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        yArray: [0, 50, 100, 150, 200, 250, 300, 350],
+        rect: new Rect(300, 100, 200, 100),
+        color: ['#3398DB', 'rgba(0, 0, 0, .5)'],
+        axisColor: '#fff',
+        axisBdColor: '#fff',
+        useGuide: true
+    })
+  
+
+    let pieChart = new window.components.PieChart({
+        rect: new Rect(500, 100, 200, 200),
+        config: [
+           {
+                name: 'user1',
+                color: 'rgb(40, 140, 127)'
+           },
+           {
+               name: 'user2',
+               color: 'rgb(25, 85, 143)'
+           },
+           {
+               name: 'user3',
+               color: 'rgb(161, 161, 8)'
+           },
+           {
+               name: 'user4',
+               color: 'red'
+           }
+        ]
+    })
+
+    let resource = new Resource()
+    resource.addSrc('./img/gx.png', 'bg')
+
+    resource.ready().then(() => {
+        update()
+    })
+
+    function update() {
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            ctx.drawImage(resource.getCache('bg'), 0, 0)
+        
+            pieChart.drawChart(ctx)
+            histogram.drawChart(ctx)
+            lineChart.drawChart(ctx)
+        
+            requestAnimationFrame(update)  
+    }
+
+    setInterval(() => {
+        pieChart.updateData(
+            { 
+                user1: 100,
+                user2: 200,
+                user3: 120,
+                user4: 50
+            }
+        )
+        lineChart.updateData({
+            Mon: 10,
+            Tue: 100,
+            Wed: 220,
+            Thu: 310,
+            Fri: 200,
+            Sat: 50,
+            Sun: 120
+        })
+        histogram.updateData({
+        Mon: 10,
+        Tue: 100,
+        Wed: 220,
+        Thu: 310,
+        Fri: 200,
+        Sat: 50,
+        Sun: 120
+    })
+    }, 3000)
+
+
+    
+
+
+
+</script>
+</html>

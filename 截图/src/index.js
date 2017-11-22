@@ -22,18 +22,24 @@
     //克隆元素
     var cloneNode = node => {
 
+        let _node = node.cloneNode()
+        _node.node = node
+
+        if (node.nodeType == 3) {
+            return _node
+        }
+
         const delTags = ['script', "style", "title"] //删除的标签名称
         let _nodeStyle = window.getComputedStyle(node, null) //保存下node的style 因为clone 会清除掉它
         let _rects = node.getBoundingClientRect() //保存下node的rect 因为clone 会清除掉它
 
-        let _node = node.cloneNode()
-
+      
         node.childNodes.forEach(child => {
             //删除 script style 等标签
             if (delTags.indexOf(child.nodeName.toLowerCase()) != -1) return
 
             if (child.nodeType == 3) {
-                _node.appendChild(child.cloneNode())
+                _node.appendChild(cloneNode(child))
             } else if (child.nodeType == 1) {
                 //如果子节点是element 递归克隆
                 _node.appendChild(cloneNode(child))
@@ -70,8 +76,6 @@
             drawText(node, ctx)
             return
         }
-
-        console.log(node._nodeStyle['transform'])
         // ctx.setTransform(1, 0, 0, 1, 0, 0)
 
         //如果元素隐藏不绘制
@@ -113,12 +117,13 @@
 
 
         //如果是输入框一类的 则绘制里面的内容
-        if (node.nodeName == 'INPUT') {
-            let text = document.createTextNode(node.value || node.getAttribute("placeholder") || '')
-            node.appendChild(text)
-            drawText(text, ctx)
-            node.removeChild(text)
-        }
+        // if (node.nodeName == 'INPUT') {
+        //     let text = document.createTextNode(node.value || node.getAttribute("placeholder") || '')
+        //     text.node = text
+        //     node.appendChild(text)
+        //     drawText(text, ctx)
+        //     node.removeChild(text)
+        // }
 
         node.childNodes.forEach((child, index) => {
             drawNode(child, ctx)
@@ -238,9 +243,6 @@
     //绘制文字
     var drawText = (node, ctx) => {
         let parent = node.parentNode
-        if (parent.nodeName == 'B') {
-            console.log(parent._rects, node.nodeValue)
-        }
         let color = parent._nodeStyle['color']
         let font = parent._nodeStyle['font']
         let fontSize = parseInt(parent._nodeStyle['fontSize'])
@@ -248,112 +250,35 @@
         let lineHeight = parseInt(parent._nodeStyle['lineHeight'])
         lineHeight = isNaN(lineHeight) ? 1.375 * fontSize : lineHeight
         let isWrap = parent._nodeStyle['word-wrap'] == 'break-word' //是否换行了
-        let text = node.nodeValue.trim()
+        let text = node.nodeValue
         let textIndent = parseInt(parent._nodeStyle['textIndent']) //缩进
         let parentWidth = parent._rects.width - parseInt(parent._nodeStyle['padding-left']) - parseInt(parent._nodeStyle['padding-right'])
-        // console.log(parentWidth, text)
-        // console.log(text)        // let textWidth = text.length * fontSize //计算文字的长度
-        text = text.replace(/(\n|\s{2,})/g, ' ')
 
-        //拆分文字 区别中文和英文
-        text = splitText(text)
-        //计算文字的长度 并进行分组
-        let startY = parent._rects.top + lineHeight / 2 + parseInt(parent._nodeStyle['padding-top']) //文字开始的y轴
+        let textList = Array.prototype.slice.call(text)
+        let _node = node.node
+        let textMap = textList.map((text, index) => {
 
-
-        let textMap = []
-        let row = 0
-        var _text = ''
-        var _w = 0
-        var _maxWidth = 0
-                //文字偏移量
-        let offsetX = {left:0, center:0, right:0}
-        let prev = node.previousSibling
-        while(prev) {
-            if (prev.nodeType == 1) {
-                if (['inline', 'inline-block', 'inline-flex'].indexOf(prev._nodeStyle['display']) != -1) {
-                    offsetX.left += prev._rects.width + parseInt(prev._nodeStyle['margin-right'])
-                }
-            }
-            prev = prev.previousSibling
-        }
-
-        let next = node.nextSibling
-        while(next) {
-            if (next.nodeType == 1) {
-                if (['inline', 'inline-block', 'inline-flex'].indexOf(next._nodeStyle['display']) != -1) {
-                    offsetX.right += next._rects.width +  parseInt(next._nodeStyle['margin-left'])
-                }
-            }
-            next = next.nextSibling
-        }
-
-
-        text.forEach(t => {
-            //测量文字的宽度
-            let span = document.createElement('span')
-            span.innerHTML = t
-            span.style.font = font
-            span.style.visibility = 'hidden'
-            document.body.appendChild(span)
-            size = span.getBoundingClientRect().width
-            document.body.removeChild(span)
-
-            _maxWidth += size
-            if (_w + size > (row == 0 ? parentWidth - textIndent : parentWidth) ) {
-                textMap.push({
-                    text: _text,
-                    y: startY + (row * lineHeight)
-                })
-                _text = ''
-                _w = 0
-                ++row
+            let offset = textList.slice(0, index).length
+            let range = document.createRange()
+            range.setStart(_node, offset)
+            range.setEnd(_node, offset + text.length)
+            let rect = range.getBoundingClientRect()
+            return {
+                text: text,
+                x: rect.left + document.defaultView.pageXOffset,
+                y: rect.top + document.defaultView.pageYOffset
             }
 
-            _w += size
-            _text += t
         })
 
-        textMap.push({
-                    text: _text,
-                    y: startY + (row * lineHeight)
-                })
-        //判断文字长度是否长于父级容器的长度
-        if (_maxWidth > parentWidth && !isWrap) {
-            align = "left"
-
-        }
-        let startX
-
-        switch(align) {
-            case "start":
-            case "left":
-                startX = parent._rects.left + parseInt(parent._nodeStyle['padding-left']) + offsetX.left
-            break
-            case "right":
-                startX = parent._rects.right - parseInt(parent._nodeStyle['padding-right']) - offsetX.right
-            break
-            case "center":
-                //如果左边有偏就把center 改成 left 再左偏移
-                if (offsetX.left) {
-                    startX = parent._rects.left + parseInt(parent._nodeStyle['padding-left']) + offsetX.left
-                    align = "left"
-                } else if (offsetX.right) {
-                    startX = parent._rects.right - parseInt(parent._nodeStyle['padding-right']) - offsetX.right
-                    align = "right"
-                } else {
-                    startX = parent._rects.left + parent._rects.width / 2 + offsetX.center
-                }
-            break
-        }
 
         textMap.forEach( t => {
             ctx.beginPath()
-            ctx.textAlign = align
+            ctx.textAlign = 'left'
             ctx.fillStyle = color
-            ctx.textBaseline = "middle"
+            ctx.textBaseline = "top"
             ctx.font = font
-            ctx.fillText(t.text, startX, t.y)
+            ctx.fillText(t.text, t.x, t.y)
             ctx.closePath()
         })
     }
